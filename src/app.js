@@ -1,5 +1,3 @@
-// file: app/app.js
-
 const express = require('express');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
@@ -13,24 +11,20 @@ const adminRoutes = require('./routes/admin/index');
 const { protect, adminOnly } = require('./middleware/auth');
 
 const app = express();
-
 app.set('trust proxy', 1);
 
 /* ---------------------- Security Middlewares ---------------------- */
-// Thiết lập các HTTP header bảo mật
 app.use(helmet());
 
-// Bật CORS (tùy chọn cấu hình origin cho production)
 app.use(cors({
   origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
-// Giới hạn request từ cùng 1 IP (phòng chống DDoS & brute force)
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 phút
-  max: 100, // Giới hạn 100 request / 15 phút / 1 IP
+  windowMs: 15 * 60 * 1000,
+  max: 100,
   message: {
     status: 429,
     message: 'Too many requests from this IP, please try again later.',
@@ -38,22 +32,29 @@ const limiter = rateLimit({
 });
 app.use('/api', limiter);
 
-// Ngăn tấn công NoSQL Injection
 app.use(mongoSanitize());
-
-// Ngăn tấn công HTTP Parameter Pollution
 app.use(hpp());
 
-/* ---------------------- Body Parser ---------------------- */
-app.use(express.json({ limit: '10kb' })); // Giới hạn kích thước JSON tránh payload lớn
+app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+
+/* ---------------------- Request Logger ---------------------- */
+app.use((req, res, next) => {
+  const start = Date.now();
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    console.log(
+      `[${new Date().toISOString()}] ${req.ip} ${req.method} ${req.originalUrl} → ${res.statusCode} (${duration}ms)`
+    );
+  });
+  next();
+});
 
 /* ---------------------- Routes ---------------------- */
 app.use('/api/public', publicRoutes);
 app.use('/api/private', protect, privateRoutes);
 app.use('/api/admin', protect, adminOnly, adminRoutes);
 
-// Test route
 app.get('/api', (req, res) => {
   res.json({ message: 'Welcome to FoodExpress API' });
 });
