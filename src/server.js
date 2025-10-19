@@ -11,6 +11,8 @@ connectDB();
 
 // Start server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+var server = app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
+
+module.exports = server;
