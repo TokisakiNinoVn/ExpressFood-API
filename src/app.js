@@ -4,6 +4,7 @@ const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const hpp = require('hpp');
+const dotenv = require('dotenv');
 
 const publicRoutes = require('./routes/public/index');
 const privateRoutes = require('./routes/private/index');
@@ -12,14 +13,16 @@ const { protect, adminOnly } = require('./middleware/auth');
 
 const app = express();
 app.set('trust proxy', 1);
+const corsFrontend = process.env.FRONTEND_ORIGIN;
 
 /* ---------------------- Security Middlewares ---------------------- */
 app.use(helmet());
 
 app.use(cors({
-  origin: '*',
+  origin: corsFrontend || 'http://localhost:3000',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
 }));
 
 const limiter = rateLimit({
