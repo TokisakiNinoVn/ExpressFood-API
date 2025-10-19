@@ -1,4 +1,3 @@
-// file: src/app.js
 const express = require('express');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
@@ -15,6 +14,7 @@ const { protect, adminOnly } = require('./middleware/auth');
 const app = express();
 app.set('trust proxy', 1);
 const corsFrontend = process.env.FRONTEND_ORIGIN;
+console.log(corsFrontend);
 
 /* ---------------------- Security Middlewares ---------------------- */
 app.use(helmet());
@@ -61,6 +61,14 @@ app.use('/api/admin', protect, adminOnly, adminRoutes);
 
 app.get('/api', (req, res) => {
   res.json({ message: 'Welcome to FoodExpress API' });
+});
+
+/* ---------------------- 404 Not Found Handler ---------------------- */
+app.all('*', (req, res, next) => {
+  res.status(404).json({
+    status: 404,
+    message: `Cannot find ${req.originalUrl} on this server!`,
+  });
 });
 
 /* ---------------------- Global Error Handler ---------------------- */

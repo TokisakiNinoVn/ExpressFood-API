@@ -2,9 +2,9 @@
   "name": "foodexpress-server",
   "version": "1.0.0",
   "description": "FoodExpress Backend Server",
-  "main": "src/app.js",
+  "main": "src/server.js",
   "scripts": {
-    "start": "node src/server.js",
+    "start": "nodemon src/server.js",
     "dev": "nodemon src/server.js",
     "seed": "node src/seeders/seed.js"
   },
