@@ -1,4 +1,4 @@
-// file: app/server.js
+// file: src/server.js
 const dotenv = require('dotenv');
 const connectDB = require('./config/db.config');
 const app = require('./app');
